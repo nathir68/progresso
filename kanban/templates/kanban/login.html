@@ -1,0 +1,23 @@
+{% extends 'kanban/base.html' %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Login to Progresso</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                    <small style="color: var(--danger-color); display: block; margin-top: 0.25rem;">{{ field.errors|striptags }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+    </form>
+    <p style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary);">
+        Don't have an account? <a href="{% url 'register' %}" style="color: var(--accent-color);">Sign up</a>
+    </p>
+</div>
+{% endblock %}

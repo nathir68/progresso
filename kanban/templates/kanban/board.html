@@ -1,0 +1,190 @@
+{% extends 'kanban/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="boards-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="{% url 'boards_list' %}" class="btn btn-outline" style="padding: 0.5rem;">&larr; Back</a>
+        <h2>{{ board.title }}</h2>
+    </div>
+    <button class="btn btn-primary" onclick="addColumn()">+ Add Column</button>
+</div>
+
+<div class="kanban-board" id="kanbanBoard" data-board-id="{{ board.id }}">
+    {% for column in columns %}
+        <div class="kanban-column" data-column-id="{{ column.id }}" ondragover="allowDrop(event)" ondrop="drop(event)">
+            <div class="column-header">
+                {{ column.title }}
+                <span style="color: var(--text-secondary); font-size: 0.875rem;">{{ column.tasks.count }}</span>
+            </div>
+            <div class="task-list" id="column-{{ column.id }}">
+                {% for task in column.tasks.all %}
+                    <div class="task-card" draggable="true" ondragstart="drag(event)" id="task-{{ task.id }}" data-task-id="{{ task.id }}">
+                        {{ task.title }}
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="btn add-task-btn" onclick="addTask({{ column.id }})">+ Add Task</button>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // Drag and Drop
+    let draggedTask = null;
+
+    function drag(ev) {
+        draggedTask = ev.target;
+        ev.dataTransfer.setData("text/plain", ev.target.id);
+        setTimeout(() => ev.target.classList.add('dragging'), 0);
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        const column = ev.target.closest('.kanban-column');
+        const taskList = column.querySelector('.task-list');
+        const afterElement = getDragAfterElement(taskList, ev.clientY);
+        
+        if (afterElement == null) {
+            taskList.appendChild(draggedTask);
+        } else {
+            taskList.insertBefore(draggedTask, afterElement);
+        }
+    }
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        draggedTask.classList.remove('dragging');
+        
+        const column = ev.target.closest('.kanban-column');
+        const columnId = column.dataset.columnId;
+        const taskId = draggedTask.dataset.taskId;
+        
+        // Get new order
+        const taskList = column.querySelector('.task-list');
+        const tasks = [...taskList.querySelectorAll('.task-card')];
+        const newOrder = tasks.map(t => parseInt(t.dataset.taskId));
+
+        // Persist to backend
+        fetch('/kanban/api/task/move/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                task_id: taskId,
+                new_column_id: columnId,
+                new_order: newOrder
+            })
+        }).then(response => {
+            if (!response.ok) {
+                console.error('Failed to move task');
+                // Could revert UI here on failure
+            }
+            // Update counts
+            updateCounts();
+        });
+    }
+
+    document.addEventListener('dragend', function(ev) {
+        if (ev.target.classList) {
+            ev.target.classList.remove('dragging');
+        }
+    });
+
+    function updateCounts() {
+        document.querySelectorAll('.kanban-column').forEach(col => {
+            const count = col.querySelectorAll('.task-card').length;
+            col.querySelector('.column-header span').textContent = count;
+        });
+    }
+
+    function addTask(columnId) {
+        const title = prompt("Enter task title:");
+        if (!title) return;
+
+        fetch('/kanban/api/task/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                column_id: columnId,
+                title: title
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const taskList = document.querySelector(`#column-${columnId}`);
+                const taskCard = document.createElement('div');
+                taskCard.className = 'task-card';
+                taskCard.draggable = true;
+                taskCard.id = `task-${data.task_id}`;
+                taskCard.dataset.taskId = data.task_id;
+                taskCard.textContent = data.title;
+                taskCard.ondragstart = drag;
+                taskList.appendChild(taskCard);
+                updateCounts();
+            }
+        });
+    }
+
+    function addColumn() {
+        const title = prompt("Enter column title:");
+        if (!title) return;
+        
+        const boardId = document.getElementById('kanbanBoard').dataset.boardId;
+
+        fetch('/kanban/api/column/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+                board_id: boardId,
+                title: title
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload(); // Reload to render new column cleanly
+            }
+        });
+    }
+</script>
+{% endblock %}

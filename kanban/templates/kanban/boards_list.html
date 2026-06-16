@@ -1,0 +1,28 @@
+{% extends 'kanban/base.html' %}
+
+{% block content %}
+<div class="boards-header">
+    <h2>Your Boards</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('createBoardForm').style.display='block'">+ New Board</button>
+</div>
+
+<div id="createBoardForm" style="display: none; margin-bottom: 2rem; background: var(--surface-color); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--surface-border);">
+    <form method="post" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="Board Title" required style="flex: 1; min-width: 200px; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid var(--surface-border); background: rgba(0,0,0,0.2); color: white;">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('createBoardForm').style.display='none'">Cancel</button>
+    </form>
+</div>
+
+<div class="boards-grid">
+    {% for board in boards %}
+        <a href="{% url 'board_detail' board.id %}" class="board-card">
+            <h3>{{ board.title }}</h3>
+            <p>Created: {{ board.created_at|date:"M d, Y" }}</p>
+        </a>
+    {% empty %}
+        <p style="color: var(--text-secondary);">You don't have any boards yet. Create one to get started!</p>
+    {% endfor %}
+</div>
+{% endblock %}
