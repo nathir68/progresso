@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class KanbanConfig(AppConfig):
-    name = 'kanban'
+    name = 'progresso'

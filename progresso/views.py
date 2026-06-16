@@ -16,7 +16,7 @@ def register(request):
             return redirect('boards_list')
     else:
         form = UserCreationForm()
-    return render(request, 'kanban/register.html', {'form': form})
+    return render(request, 'progresso/register.html', {'form': form})
 
 @login_required
 def boards_list(request):
@@ -31,13 +31,13 @@ def boards_list(request):
             return redirect('board_detail', board_id=board.id)
             
     boards = Board.objects.filter(user=request.user)
-    return render(request, 'kanban/boards_list.html', {'boards': boards})
+    return render(request, 'progresso/boards_list.html', {'boards': boards})
 
 @login_required
 def board_detail(request, board_id):
     board = get_object_or_404(Board, id=board_id, user=request.user)
     columns = board.columns.prefetch_related('tasks').all()
-    return render(request, 'kanban/board.html', {'board': board, 'columns': columns})
+    return render(request, 'progresso/board.html', {'board': board, 'columns': columns})
 
 @login_required
 @require_POST

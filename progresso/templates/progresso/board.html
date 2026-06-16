@@ -1,4 +1,4 @@
-{% extends 'kanban/base.html' %}
+{% extends 'progresso/base.html' %}
 {% load static %}
 
 {% block content %}
@@ -96,7 +96,7 @@
         const newOrder = tasks.map(t => parseInt(t.dataset.taskId));
 
         // Persist to backend
-        fetch('/kanban/api/task/move/', {
+        fetch('/progresso/api/task/move/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -134,7 +134,7 @@
         const title = prompt("Enter task title:");
         if (!title) return;
 
-        fetch('/kanban/api/task/create/', {
+        fetch('/progresso/api/task/create/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -168,7 +168,7 @@
         
         const boardId = document.getElementById('kanbanBoard').dataset.boardId;
 
-        fetch('/kanban/api/column/create/', {
+        fetch('/progresso/api/column/create/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
