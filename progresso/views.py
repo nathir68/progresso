@@ -7,6 +7,11 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from .models import Board, Column, Task
 
+def index(request):
+    if request.user.is_authenticated:
+        return redirect('boards_list')
+    return render(request, 'progresso/index.html')
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

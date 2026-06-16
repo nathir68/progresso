@@ -10,7 +10,7 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-brand"><a href="{% url 'boards_list' %}">Progresso</a></div>
+        <div class="nav-brand"><a href="{% url 'index' %}">Progresso</a></div>
         <div class="nav-links">
             {% if user.is_authenticated %}
                 <span class="user-greeting">Hello, {{ user.username }}</span>

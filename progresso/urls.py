@@ -7,7 +7,8 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='progresso/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     
-    path('', views.boards_list, name='boards_list'),
+    path('', views.index, name='index'),
+    path('boards/', views.boards_list, name='boards_list'),
     path('board/<int:board_id>/', views.board_detail, name='board_detail'),
     
     # AJAX endpoints

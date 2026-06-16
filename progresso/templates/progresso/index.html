@@ -1,0 +1,28 @@
+{% extends 'progresso/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="hero-section" style="text-align: center; padding: 4rem 1rem; max-width: 800px; margin: 0 auto;">
+    <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 1.5rem; line-height: 1.2; background: linear-gradient(to right, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Manage your projects with Progresso
+    </h1>
+    <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.6;">
+        Progresso is a modern, intuitive, Kanban-style task manager. Drag and drop your way to higher productivity. Stay organized, focused, and completely in control of your workflow.
+    </p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 4rem;">
+        <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.125rem;">Get Started for Free</a>
+        <a href="{% url 'login' %}" class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1.125rem;">Login to your account</a>
+    </div>
+
+    <div style="background: var(--surface-color); border: 1px solid var(--surface-border); border-radius: 1rem; padding: 2rem; backdrop-filter: blur(10px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: left;">
+        <h2 style="margin-bottom: 1rem;">Why Progresso?</h2>
+        <ul style="list-style-position: inside; color: var(--text-secondary); line-height: 1.8;">
+            <li><strong style="color: var(--text-primary);">Real-time Sync:</strong> Experience instantaneous drag-and-drop state persistence without page reloads.</li>
+            <li><strong style="color: var(--text-primary);">Custom Workflows:</strong> Create customized boards and columns to fit your specific needs.</li>
+            <li><strong style="color: var(--text-primary);">Beautiful UI:</strong> A sleek dark mode with glassmorphism to keep your eyes rested.</li>
+            <li><strong style="color: var(--text-primary);">Secure & Private:</strong> Built with robust authentication to keep your project data safe.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
