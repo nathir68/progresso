@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'project_manager.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='mysql://root:Natsah%230608@127.0.0.1:3306/kanban_db',
+        default='mysql://root:NatSah%230608@127.0.0.1:3306/kanban_db',
         conn_max_age=600
     )
 }
